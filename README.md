@@ -1,3 +1,3 @@
 # spring-demo
 
-My first spring demo project I actually hosted.
+This is my first spring demo project which I actually hosted.
