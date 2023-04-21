@@ -1,12 +1,15 @@
 FROM ubuntu:latest AS build
+
 RUN apt-get update
-RUN apt-get install -y temurin-17-jdk
+RUN apt-get install openjdk-17-jdk -y
 COPY . .
+
 RUN ./gradlew bootJar --no-daemon
 
-FROM eclipse-temurin:17
+FROM openjdk:17-jdk-slim
+
 EXPOSE 8080
-RUN mkdir /opt/app
-ARG JAR_FILE
-COPY ${JAR_FILE} app.jar
-CMD ["java", "-jar", "app.jar"]
+
+COPY --from=build /build/libs/spring-demo-0.0.1-SNAPSHOT.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
