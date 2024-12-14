@@ -1,16 +1,19 @@
-FROM ubuntu:latest AS build
+FROM gradle:jdk17 AS build
+WORKDIR /app
 
-RUN apt-get update
-RUN apt-get install openjdk-17-jdk -y
-COPY . .
+COPY gradlew .
+COPY gradle gradle/
+COPY build.gradle .
+COPY settings.gradle .
 
-RUN chmod +x gradlew
-RUN ./gradlew bootJar --no-daemon
+RUN ./gradlew --version
 
-FROM openjdk:17-jdk-slim
+COPY src src/
 
+RUN ./gradlew bootJar
+
+
+FROM eclipse-temurin:17-jre-alpine
+COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-
-COPY --from=build /build/libs/spring-demo-0.0.1-SNAPSHOT.jar app.jar
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT [ "java", "-jar", "app.jar" ]
